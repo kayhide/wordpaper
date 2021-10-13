@@ -1,3 +1,9 @@
 use nix
 
 PATH_add result/bin
+
+export UNSPLASH_ACCESS_KEY="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# export GEOMETRY="2560x1440"
+# export OUTPUT_DIR=output
+# export FONT=Noto-Serif-Italic

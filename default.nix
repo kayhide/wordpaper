@@ -18,9 +18,13 @@ stdenv.mkDerivation rec {
 
   buildInputs = with pkgs; [
     coreutils
+    curl
     findutils
     gnugrep
     gnused
+    imagemagick
+    jq
+    ncurses
   ];
 
   installPhase = ''
@@ -33,7 +37,7 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description = "";
+    description = "Command line tool to generate images which help you remembering words";
     license = licenses.mit;
     maintainers = with maintainers; [ kayhide ];
   };
