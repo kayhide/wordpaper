@@ -84,22 +84,25 @@ analize() {
     local h="${GEOMETRY##*x}"
     local dw=$(((w - padding * 2) / nx))
     local dh=$(((h - padding * 2) / ny))
-    for j in $(seq $ny0 $ny1); do
-        for i in $(seq $nx0 $nx1); do
+
+    local tmp_image="${image%%.jpeg}_tmp.jpeg"
+    cp "$image" "$tmp_image"
+    for j in $(seq "$ny0" "$ny1"); do
+        for i in $(seq "$nx0" "$nx1"); do
             local x=$((i * dw + padding))
             local y=$((j * dh + padding))
-            identify -crop "${dw}x${dh}+$x+$y" -format "%[entropy] %[fx:floor(mean * 100)] $x $y" "$image"
+            # identify -crop "${dw}x${dh}+$x+$y" -format "%[entropy] %[fx:floor(mean * 100)] $x $y $dw $dh" "$image"
+            identify -crop "${dw}x${dh}+$x+$y" -format "%[standard-deviation] %[fx:floor(mean * 100)] $x $y $dw $dh" "$tmp_image"
             echo
         done
     done
+    rm -f "$tmp_image"
 }
 
 add_analisys() {
     local id="$1"
     local img="$images_dir/$1.jpeg"
-    local text1="$2"
-    local text2="$3"
-    local dst="$OUTPUT_DIR/$1-${text2// /_}-$GEOMETRY.jpeg"
+    local dst="$OUTPUT_DIR/$1-$GEOMETRY.jpeg"
     mkdir -p "$OUTPUT_DIR"
 
     local w="${GEOMETRY%%x*}"
@@ -110,23 +113,26 @@ add_analisys() {
         -extent "$GEOMETRY" \
         "$img" "$dst"
 
-    cp "$dst" "${dst%%.jpeg}_tmp.jpeg"
-    analize "${dst%%.jpeg}_tmp.jpeg" 0-3/4 0-15/16 100 | while read -r line; do
+    analize "$dst" 0-7/8 0-15/16 100 | while read -r line; do
         local xs=($line)
-        local entropy="${xs[0]}"
+        local std="${xs[0]}"
         local mean="${xs[1]}"
         local x="${xs[2]}"
         local y="${xs[3]}"
+        local w="${xs[4]}"
+        local h="${xs[5]}"
         local color="$( ((50 < mean)) && echo black || echo white)"
         convert \
+            -stroke "$color" \
+            -fill "#00000010" \
+            -draw "rectangle $x,$y $((x + w)),$((y + h))" \
             -fill "$color" \
             -font "$FONT" \
-            -pointsize 36 \
+            -pointsize 24 \
             -gravity northwest \
-            -annotate "+$x+$y" "$(printf "(%d, %d) %.3f %d" $y $x $entropy $mean)" \
+            -annotate "+$x+$y" "$(printf "(%d, %d) %.3f %d" $x $y $std $mean)" \
             "$dst" "$dst"
     done
-    rm -f "${dst%%.jpeg}_tmp.jpeg"
     say_status analize "$dst"
 }
 
@@ -149,16 +155,14 @@ add_text() {
             -extent "$GEOMETRY" \
             "$img" "$dst"
 
-        cp "$dst" "${dst%%.jpeg}_tmp.jpeg"
-        analize "${dst%%.jpeg}_tmp.jpeg" 0-0/4 0-7/16 100 | sort | head -n 1 | while read -r line; do
+        analize "$dst" 0-0/8 0-7/16 100 | sort -n | head -n 1 | while read -r line; do
             local xs=($line)
-            local entropy="${xs[0]}"
             local mean="${xs[1]}"
             local x="${xs[2]}"
             local y="${xs[3]}"
             local color="$( ((50 < mean)) && echo black || echo white)"
             convert \
-                -fill $color \
+                -fill "$color" \
                 -font "$FONT" \
                 -pointsize 96 \
                 -gravity northwest \
@@ -166,15 +170,14 @@ add_text() {
                 "$dst" "$dst"
         done
 
-        analize "${dst%%.jpeg}_tmp.jpeg" 3-3/4 5-11/16 100 | sort | head -n 1 | while read -r line; do
+        analize "$dst" 7-7/8 2-11/16 100 | sort -n | head -n 1 | while read -r line; do
             local xs=($line)
-            local entropy="${xs[0]}"
             local mean="${xs[1]}"
             local x="${xs[2]}"
             local y="${xs[3]}"
             local color="$( ((50 < mean)) && echo black || echo white)"
             convert \
-                -fill $color \
+                -fill "$color" \
                 -font "$FONT" \
                 -pointsize 72 \
                 -gravity northeast \
@@ -182,7 +185,6 @@ add_text() {
                 "$dst" "$dst"
         done
 
-        rm -f "${dst%%.jpeg}_tmp.jpeg"
         say_status create "$dst"
     fi
 }
@@ -216,6 +218,10 @@ case ${1:-} in
     ;;
 list-font)
     convert -list font | grep Font: | cut -d ":" -f 2
+    ;;
+analize)
+    shift
+    add_analisys "$@"
     ;;
 *)
     from_csv
