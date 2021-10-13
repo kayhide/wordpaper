@@ -2,8 +2,6 @@
 
 set -eu
 
-here="$(cd "$(dirname $0)" && pwd)"
-
 cache_dir="$HOME/.cache/wordpaper"
 lists_dir="$cache_dir/lists"
 images_dir="$cache_dir/images"
@@ -29,15 +27,15 @@ say_status() {
         *) tput setaf 6 ;;
         esac
     fi
-    printf "% 14s " $status
+    printf "% 14s " "$status"
     tput sgr0
-    echo $body
+    echo "$body"
 }
 
 fetch_list() {
     local word="$1"
     local dst="$lists_dir/${word// /_}.json"
-    local query=$(echo $word | sed "s/\bto\s\+//" | jq -Rr @uri)
+    local query=$(echo "$word" | sed "s/\bto\s\+//" | jq -Rr @uri)
     if [[ -f $dst ]]; then
         if [[ -n $VERBOSE ]]; then
             say_status exist "$dst"
@@ -130,7 +128,7 @@ add_analisys() {
             -font "$FONT" \
             -pointsize 24 \
             -gravity northwest \
-            -annotate "+$x+$y" "$(printf "(%d, %d) %.3f %d" $x $y $std $mean)" \
+            -annotate "+$x+$y" "$(printf "(%d, %d) %.3f %d" "$x" "$y" "$std" "$mean")" \
             "$dst" "$dst"
     done
     say_status analize "$dst"
