@@ -11,6 +11,7 @@ images_dir="$cache_dir/images"
 OUTPUT_DIR="${OUTPUT_DIR:-output}"
 GEOMETRY="${GEOMETRY:-2560x1440}"
 FONT="${FONT:-Noto-Serif-Italic}"
+VERBOSE="${VERBOSE:-}"
 
 say_status() {
     local status="$1"
@@ -23,6 +24,7 @@ say_status() {
         create) tput setaf 2 ;;
         delete) tput setaf 1 ;;
         update) tput setaf 3 ;;
+        download) tput setaf 5 ;;
         exist) tput setaf 3 ;;
         *) tput setaf 6 ;;
         esac
@@ -37,11 +39,13 @@ fetch_list() {
     local dst="$lists_dir/${word// /_}.json"
     local query=$(echo $word | sed "s/\bto\s\+//" | jq -Rr @uri)
     if [[ -f $dst ]]; then
-        say_status exist "$dst"
+        if [[ -n $VERBOSE ]]; then
+            say_status exist "$dst"
+        fi
     else
         mkdir -p "$lists_dir"
-        curl -H "Authorization: Client-ID $UNSPLASH_ACCESS_KEY" "https://api.unsplash.com/search/photos?orientation=landscape&query=$query" >"$dst"
-        say_status create "$dst"
+        curl -sSL -H "Authorization: Client-ID $UNSPLASH_ACCESS_KEY" "https://api.unsplash.com/search/photos?orientation=landscape&query=$query" >"$dst"
+        say_status download "$dst"
     fi
 }
 
@@ -54,12 +58,14 @@ get_image() {
     local id="$1"
     local dst="$images_dir/$1.jpeg"
     if [[ -f $dst ]] && identify "$dst" >/dev/null 2>&1; then
-        say_status exist "$dst"
+        if [[ -n $VERBOSE ]]; then
+            say_status exist "$dst"
+        fi
     else
         mkdir -p "$images_dir"
         local url="https://unsplash.com/photos/$id/download"
         curl -sSL "$url" >"$dst"
-        say_status create "$dst"
+        say_status download "$dst"
     fi
 }
 
