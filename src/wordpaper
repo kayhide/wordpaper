@@ -100,7 +100,7 @@ analize() {
 add_analysis() {
     local id="$1"
     local img="$images_dir/$1.jpeg"
-    local dst="$OUTPUT_DIR/$1-$GEOMETRY.jpeg"
+    local dst="$OUTPUT_DIR/$1.jpeg"
     mkdir -p "$OUTPUT_DIR"
 
     local w="${GEOMETRY%%x*}"
@@ -139,7 +139,7 @@ add_text() {
     local img="$images_dir/$1.jpeg"
     local text1="$2"
     local text2="$3"
-    local dst="$OUTPUT_DIR/$1-${text2// /_}-$GEOMETRY.jpeg"
+    local dst="$OUTPUT_DIR/$1-${text2// /_}.jpeg"
     if [[ -f $dst ]]; then
         say_status exist "$dst"
     else
