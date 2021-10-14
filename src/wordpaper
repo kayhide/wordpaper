@@ -97,7 +97,7 @@ analize() {
     rm -f "$tmp_image"
 }
 
-add_analisys() {
+add_analysis() {
     local id="$1"
     local img="$images_dir/$1.jpeg"
     local dst="$OUTPUT_DIR/$1-$GEOMETRY.jpeg"
@@ -196,7 +196,6 @@ forge() {
     for id in $(show_ids "$word2"); do
         get_image "$id"
         add_text "$id" "$word1" "$word2"
-        # add_analisys "$id" "$word1" "$word2"
     done
 }
 
@@ -219,7 +218,7 @@ list-font)
     ;;
 analize)
     shift
-    add_analisys "$@"
+    add_analysis "$@"
     ;;
 *)
     from_csv
