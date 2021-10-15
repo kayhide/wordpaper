@@ -158,9 +158,9 @@ add_text() {
             local mean="${xs[1]}"
             local x="${xs[2]}"
             local y="${xs[3]}"
-            local color="$( ((50 < mean)) && echo black || echo white)"
+            local color="$( ((50 < mean)) && echo "rgba(0, 0, 0, 0.75)" || echo "rgba(255, 255, 255, 0.75)" )"
             convert \
-                -fill "$color" \
+                -fill "${color}" \
                 -font "$FONT" \
                 -pointsize 96 \
                 -gravity northwest \
@@ -173,7 +173,7 @@ add_text() {
             local mean="${xs[1]}"
             local x="${xs[2]}"
             local y="${xs[3]}"
-            local color="$( ((50 < mean)) && echo black || echo white)"
+            local color="$( ((50 < mean)) && echo "rgba(0, 0, 0, 0.75)" || echo "rgba(255, 255, 255, 0.75)" )"
             convert \
                 -fill "$color" \
                 -font "$FONT" \
