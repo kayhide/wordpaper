@@ -4,6 +4,12 @@
 let
   inherit (pkgs) lib stdenv;
 
+  my-python = pkgs.python3.withPackages(pkgs: with pkgs; [
+    matplotlib
+    numpy
+    scikitimage
+  ]);
+
 in
 
 stdenv.mkDerivation rec {
@@ -25,6 +31,7 @@ stdenv.mkDerivation rec {
     imagemagick
     jq
     ncurses
+    my-python
   ];
 
   installPhase = ''
