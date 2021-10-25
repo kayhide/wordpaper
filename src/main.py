@@ -12,10 +12,7 @@ import imagemagick
 
 UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
 
-parser = argparse.ArgumentParser(
-    prog="wordpaper",
-    epilog="To see available fonts, run `wordpaper list-font`."
-    )
+parser = argparse.ArgumentParser(prog="wordpaper")
 parser.add_argument('--version', action="version", version=os.getenv("VERSION"))
 parser.add_argument('--output-dir', metavar="DIR", default="output", help="output directory (default: output)")
 parser.add_argument('--cache-dir', metavar="DIR", help="cache directory (default: $HOME/.cache/%(prog)s)")
@@ -23,7 +20,16 @@ parser.add_argument('--analysis-dir', metavar="DIR", help="if given, outputs ana
 parser.add_argument('--geometry', default="2560x1440", help="geometry of output images (default: 2560x1440)")
 parser.add_argument('--font', default="Noto-Serif-Italic", help="text font (default: Noto-Sefrif-Italic)")
 parser.add_argument('--verbose', action="store_true")
+parser.add_argument('--list-font', action="store_true", help="show available fonts and exit")
 args = parser.parse_args()
+
+if args.list_font:
+    lines = imagemagick.list("font")
+    for line in lines.decode().splitlines():
+        if "Font:" in line:
+            print(line.split(r":", 2)[1].lstrip())
+    exit()
+
 
 home_dir = os.getenv("HOME")
 cache_dir = args.cache_dir or f"{home_dir}/.cache/wordpaper"
