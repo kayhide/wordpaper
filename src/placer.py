@@ -1,11 +1,13 @@
 from scipy.ndimage import uniform_filter
-from skimage import data, io, filters, feature, color
+from skimage import data, filters, feature, color
 from skimage.draw import rectangle, rectangle_perimeter, set_color
 from skimage.filters.rank import entropy
 from skimage.morphology import disk
 from skimage.util import img_as_ubyte
+import io
 import matplotlib.pyplot as plt
 import numpy as np
+import skimage.io
 
 class Point:
     def __init__(self, x, y):
@@ -45,15 +47,15 @@ class View:
 
 
 class Placer:
-    def __init__(self, src, size):
+    def __init__(self, src, size, padding=None, view=None):
         self.src = src
         self.size = Size(size[0], size[1])
-        self.padding = None
+        self.padding = padding
+        self.view = view
         self.image = None
-        self.__view = None
 
     def load(self):
-        image = io.imread(self.src)
+        image = skimage.io.imread(self.src)
         if len(image.shape) == 2:
             image = color.gray2rgb(image)
 
@@ -74,7 +76,9 @@ class Placer:
 
     @view.setter
     def view(self, val):
-        if type(val) is View:
+        if not val:
+            self.__view = None
+        elif type(val) is View:
             self.__view = val
         else:
             p, s = val
@@ -110,7 +114,7 @@ class Placer:
         self.mean = np.mean(gray[pos.y:(pos.y + size.h), pos.x:(pos.x + size.w)])
         self.pos = Point(pos.x + view.p0.x, pos.y + view.p0.y)
 
-    def analyze(self, dst):
+    def analyze(self):
         try:
             self.pos
         except NameError:
@@ -140,5 +144,8 @@ class Placer:
         ax3.set_title("Moving avg")
 
         fig.tight_layout()
-        plt.savefig(dst)
+
+        tmp = io.BytesIO()
+        plt.savefig(tmp, format="png")
+        return tmp.getvalue()
 

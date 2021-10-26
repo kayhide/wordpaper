@@ -1,7 +1,6 @@
 from functools import partial
 import argparse
 import io
-import json
 import os
 import re
 import requests
@@ -9,14 +8,17 @@ import sys
 
 from placer import Placer
 from shell import Shell
+from cache import Cache
 import imagemagick
 
+HOME = os.getenv("HOME")
+VERSION = os.getenv("VERSION")
 UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
 
 parser = argparse.ArgumentParser(prog="wordpaper")
-parser.add_argument('--version', action="version", version=os.getenv("VERSION"))
+parser.add_argument('--version', action="version", version=VERSION)
 parser.add_argument('--output-dir', metavar="DIR", default="output", help="output directory (default: output)")
-parser.add_argument('--cache-dir', metavar="DIR", help="cache directory (default: $HOME/.cache/%(prog)s)")
+parser.add_argument('--cache-dir', metavar="DIR", default=f"{HOME}/.cache/wordpaper", help="cache directory (default: $HOME/.cache/%(prog)s)")
 parser.add_argument('--analysis-dir', metavar="DIR", help="if given, outputs analysis for each processed image")
 parser.add_argument('--geometry', default="2560x1440", help="geometry of output images (default: 2560x1440)")
 parser.add_argument('--font', default="Noto-Serif-Italic", help="text font (default: Noto-Sefrif-Italic)")
@@ -33,123 +35,86 @@ if args.list_font:
     exit()
 
 
-home_dir = os.getenv("HOME")
-cache_dir = args.cache_dir or f"{home_dir}/.cache/wordpaper"
-lists_dir = f"{cache_dir}/lists"
-images_dir = f"{cache_dir}/images"
-output_dir = args.output_dir
 font = args.font
 geometry = args.geometry
 output_size = tuple(map(int, re.match(r"(\d+)x(\d+)", geometry).groups()))
-
+force = args.force
 
 shell = Shell()
 
-def to_basename(word):
-    return word.replace(' ', '_')
+cache = Cache(args.cache_dir)
+if args.verbose:
+    cache.callbacks.on_exist(partial(Shell.say_status, shell, "exist"))
+cache.callbacks.on_create(partial(Shell.say_status, shell, "download"))
 
-def list_file(word):
-    return f"{lists_dir}/{to_basename(word)}.json"
+output = Cache(args.output_dir)
+output.callbacks.on_exist(partial(Shell.say_status, shell, "exist"))
+output.callbacks.on_create(partial(Shell.say_status, shell, "create"))
 
-def image_file(id):
-    return f"{images_dir}/{id}.jpeg"
-
-def caching(path, on_exist=None, on_create=None):
-    if os.path.exists(path):
-        on_exist and on_exist(path)
-        return
-
-    def save(body):
-        try:
-            body = body.encode()
-        except (AttributeError):
-            pass
-
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, 'wb') as f:
-            f.write(body)
-
-    yield save
-    on_create and on_create(path)
+if args.analysis_dir:
+    analysis = Cache(args.analysis_dir)
+    analysis.callbacks.on_create(partial(Shell.say_status, shell, "analyze"))
+else:
+    analysis = None
 
 
-def fetch_list(word): 
-    dst = list_file(word)
-    on_exist = args.verbose and partial(Shell.say_status, shell, "exist") or None
-    on_create = partial(Shell.say_status, shell, "download")
-    for save in caching(dst, on_exist=on_exist, on_create=on_create):
-        query = re.sub(r'\bto\s+', '', word)
-        headers = {
-            'Authorization': f"Client-ID {UNSPLASH_ACCESS_KEY}"
-        }
-        params = {
-            ('orientation', 'landscape'),
-            ('query', query)
-        }
-        url = f"https://api.unsplash.com/search/photos"
-        res = requests.get(url, headers=headers, params=params)
-        save(res.text)
+
+def fetch_list(word):
+    query = re.sub(r'\bto\s+', '', word)
+    headers = {
+        'Authorization': f"Client-ID {UNSPLASH_ACCESS_KEY}"
+    }
+    params = {
+        ('orientation', 'landscape'),
+        ('query', query)
+    }
+    url = f"https://api.unsplash.com/search/photos"
+    res = requests.get(url, headers=headers, params=params)
+    return res.text
 
 def get_ids(word):
-    with open(list_file(word)) as f:
-        return [r['id'] for r in json.load(f)['results']]
+    content = cache.json("lists", word).put(fetch_list, word).load()
+    return [r['id'] for r in content['results']]
 
-def get_image(id):
-    dst = image_file(id)
-    on_exist = args.verbose and partial(Shell.say_status, shell, "exist") or None
-    on_create = partial(Shell.say_status, shell, "download")
-    for save in caching(dst, on_exist=on_exist, on_create=on_create):
-        url = f"https://unsplash.com/photos/{id}/download"
-        res = requests.get(url)
-        save(res.content)
-
+def fetch_image(id):
+    url = f"https://unsplash.com/photos/{id}/download"
+    res = requests.get(url)
+    return res.content
 
 def add_text(id, eng, frn):
-    dst = f"{output_dir}/{id}-{to_basename(eng)}.jpeg"
-    if args.force and os.path.exists(dst):
-        os.remove(dst)
-
-    on_exist = partial(Shell.say_status, shell, "exist")
-    on_create = partial(Shell.say_status, shell, "create")
-    for save in caching(dst, on_exist=on_exist, on_create=on_create):
-        padding = 100
-        bmp = imagemagick.convert(
-            image_file(id), "bmp:-",
-            gravity="center",
-            resize=f"{geometry}^",
-            extent=geometry
-            )
+    padding = 100
+    src = cache.jpeg("images", id).put(fetch_image, id).file()
+    bmp = imagemagick.convert(
+        src, "bmp:-",
+        gravity="center",
+        resize=f"{geometry}^",
+        extent=geometry
+        )
 
 
-        texts = [(frn, 96), (eng, 72)]
-        sizes = [get_text_size(text, pointsize) for text, pointsize in texts]
-        to_views = [
-            lambda size: ((padding, 0), (size[0] + padding, output_size[1] * 3 // 4)),
-            lambda size: ((output_size[0] - size[0] - padding * 2, 0), (size[0] + padding, output_size[1] * 3 // 4))
-        ]
-        placers = [find_place(bmp, size, padding, to_view(size)) for size, to_view in zip(sizes, to_views)]
-        if args.analysis_dir:
-            os.makedirs(args.analysis_dir, exist_ok=True)
-            for placer, (text, _) in zip(placers, texts):
-                dst = f"{args.analysis_dir}/{id}-{to_basename(text)}.png"
-                placer.analyze(dst)
-                shell.say_status("analyze", dst)
+    texts = [(frn, 96), (eng, 72)]
+    sizes = [cache.json("sizes", f"{text}-{pointsize}").put(get_text_size, text, pointsize).load(quiet=True) for text, pointsize in texts]
+    to_views = [
+        lambda size: ((padding, 0), (size[0] + padding, output_size[1] * 3 // 4)),
+        lambda size: ((output_size[0] - size[0] - padding * 2, 0), (size[0] + padding, output_size[1] * 3 // 4))
+    ]
+    placers = [find_place(bmp, size, padding, to_view(size)) for size, to_view in zip(sizes, to_views)]
+    if analysis:
+        for placer, (text, _) in zip(placers, texts):
+            key = f"{os.path.splitext(os.path.basename(src))[0]}--{text}"
+            analysis.png(key).put(Placer.analyze, placer).file(force=True)
 
-        to_color = lambda placer: 0.5 < placer.mean and "rgba(0, 0, 0, 0.75)" or "rgba(255, 255, 255, 0.75)"
-        annotations = [(text, pointsize, placer.pos, to_color(placer)) for (text, pointsize), placer in zip(texts, placers)]
-        bmp = annotate(bmp, annotations)
+    to_color = lambda placer: 0.5 < placer.mean and "rgba(0, 0, 0, 0.75)" or "rgba(255, 255, 255, 0.75)"
+    annotations = [(text, pointsize, placer.pos, to_color(placer)) for (text, pointsize), placer in zip(texts, placers)]
+    bmp = annotate(bmp, annotations)
 
-        res = imagemagick.convert(("bmp:-", bmp), "jpeg:-")
-        save(res)
+    return imagemagick.convert(("bmp:-", bmp), "jpeg:-")
 
 def get_text_size(text, pointsize):
-    res = imagemagick.convert(f"label:{text}", "info:", font=font, pointsize=pointsize, format="%wx%h")
-    return tuple(map(int, re.match(r"(\d+)x(\d+)", res.decode()).groups()))
+    return imagemagick.convert(f"label:{text}", "info:", font=font, pointsize=pointsize, format="[%w,%h]").decode()
 
 def find_place(bmp, text_size, padding, view):
-    placer = Placer(io.BytesIO(bmp), text_size)
-    placer.view = view
-    placer.padding = padding
+    placer = Placer(io.BytesIO(bmp), text_size, padding=padding, view=view)
     placer.run()
     return placer
 
@@ -168,10 +133,8 @@ def annotate(bmp, annotations):
 
 def forge(eng, frn):
     shell.say_status("forge", f"{frn}: {eng}")
-    fetch_list(eng)
     for id in get_ids(eng):
-        get_image(id)
-        add_text(id, eng, frn)
+        output.jpeg(f"{id}-{eng}").put(add_text, id, eng, frn).file(force=force)
 
 
 while True:
