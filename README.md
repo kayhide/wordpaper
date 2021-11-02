@@ -1,6 +1,6 @@
 # wordpaper
 
-**wordpaper** is a command line tool to generate images which help you remembering words.
+**wordpaper** is a command line tool to generate images which helps you to remember words.
 
 Generated images are good for your desktop wallpaper.
 
@@ -33,16 +33,14 @@ Once you have successfully opened your account, your apps and their access keys 
 
 https://unsplash.com/oauth/applications
 
+
+And then, set it to the environment variable:
+
+- `UNSPLASH_ACCESS_KEY`
+
 ## Usage
 
-Set the following environment variables:
-
-- UNSPLASH_ACCESS_KEY
-- GEOMETRY (optional, default: `2560x1440`)
-- OUTPUT_DIR (optional, default: `output`)
-- FONT (optional, default: Noto-Serif-Italic)
-
-Then feed words to **wordpaper**.
+Feed words from stdin to **wordpaper**.
 
 Here is an example.
 
@@ -57,13 +55,13 @@ to say,言う
 ```
 
 ```console
-$ cat japanese.csv | FONT=Noto-Sans-CJK-JP-Bold wordpaper
+$ cat japanese.csv | wordpaper --font Noto-Sans-CJK-JP-Bold 
 ```
 
-And then, you will have images under `output` directory.
+Generated images will be saved under `output` directory.
 
 Note that the font should include required glyphs.
-Since the example is Japanese, `FONT` is explicitly given.
+Since the example is Japanese, `--font` is explicitly given.
 
 You can check available fonts on your system with:
 
