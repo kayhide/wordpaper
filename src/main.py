@@ -22,6 +22,8 @@ parser.add_argument('--cache-dir', metavar="DIR", default=f"{HOME}/.cache/wordpa
 parser.add_argument('--analysis-dir', metavar="DIR", help="if given, outputs analysis for each processed image")
 parser.add_argument('--geometry', default="2560x1440", help="geometry of output images (default: 2560x1440)")
 parser.add_argument('--font', default="Noto-Serif-Italic", help="text font (default: Noto-Sefrif-Italic)")
+parser.add_argument('--foreign-size', metavar="SIZE", default="96", help="font size for foreign word (default: 96)")
+parser.add_argument('--english-size', metavar="SIZE", default="72", help="font size for english word (default: 72)")
 parser.add_argument('--verbose', action="store_true")
 parser.add_argument('--force', action="store_true", help="overwrite generated images if existing")
 parser.add_argument('--list-font', action="store_true", help="show available fonts and exit")
@@ -36,6 +38,8 @@ if args.list_font:
 
 
 font = args.font
+foreign_size = args.foreign_size
+english_size = args.english_size
 geometry = args.geometry
 output_size = tuple(map(int, re.match(r"(\d+)x(\d+)", geometry).groups()))
 force = args.force
@@ -92,7 +96,7 @@ def add_text(id, eng, frn):
         )
 
 
-    texts = [(frn, 96), (eng, 72)]
+    texts = [(frn, foreign_size), (eng, english_size)]
     sizes = [cache.json("sizes", f"{text}-{pointsize}").put(get_text_size, text, pointsize).load(quiet=True) for text, pointsize in texts]
     to_views = [
         lambda size: ((padding, 0), (size[0] + padding, output_size[1] * 3 // 4)),
