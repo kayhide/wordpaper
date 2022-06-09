@@ -1,5 +1,6 @@
 from functools import partial
 import argparse
+import binascii
 import io
 import os
 import re
@@ -140,7 +141,8 @@ def annotate(bmp, annotations):
 def forge(eng, frn):
     shell.say_status("forge", f"{frn}: {eng}")
     for id in get_ids(eng):
-        output.jpeg(f"{id}-{eng}").put(add_text, id, eng, frn).file(force=force)
+        hash = binascii.crc32(f"{id}--{eng}--{frn}".encode())
+        output.jpeg(f"{hash:08x}-{eng}").put(add_text, id, eng, frn).file(force=force)
 
 
 while True:
