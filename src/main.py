@@ -74,6 +74,8 @@ def fetch_list(word):
     }
     url = f"https://api.unsplash.com/search/photos"
     res = requests.get(url, headers=headers, params=params)
+    if res.text == "Rate Limit Exceeded":
+        raise Exception("Rate Limit Exceeded")
     return res.text
 
 def get_ids(word):
