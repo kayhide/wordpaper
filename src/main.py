@@ -83,9 +83,17 @@ def get_ids(word):
     content = cache.json("lists", word).put(fetch_list, word).load()
     return [r['id'] for r in content['results']]
 
+def verify_image(data):
+    if data[:4] == '\xff\xd8\xff\xe0' and data[6:] == 'JFIF\0':
+        return
+    if data[1:4] == "PNG":
+        return
+    raise Exception("Not a jpeg nor png")
+
 def fetch_image(id):
     url = f"https://unsplash.com/photos/{id}/download"
     res = requests.get(url)
+    verify_image(res.content)
     return res.content
 
 def add_text(id, eng, frn):
