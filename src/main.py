@@ -156,5 +156,11 @@ def forge(eng, frn):
 while True:
     line = sys.stdin.readline()
     if not line: break
-    eng, frn = map(str.strip, line.split(","))
-    forge(eng, frn)
+    line = line.strip()
+    if 0 < len(line) and line[0] != "#":
+        try:
+            eng, frn = map(str.strip, line.split(","))
+        except:
+            shell.say_status("invalid", line, "red")
+        else:
+            forge(eng, frn)
