@@ -14,7 +14,7 @@ in
 
 stdenv.mkDerivation rec {
   pname = "wordpaper";
-  version = "0.7.0";
+  version = "0.7.1";
 
   src = ./src;
 
