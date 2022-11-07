@@ -6,6 +6,7 @@ import os
 import re
 import requests
 import sys
+import imghdr
 
 from placer import Placer
 from shell import Shell
@@ -84,10 +85,9 @@ def get_ids(word):
     return [r['id'] for r in content['results']]
 
 def verify_image(data):
-    if data[:4] == '\xff\xd8\xff\xe0' and data[6:] == 'JFIF\0':
-        return
-    if data[1:4] == "PNG":
-        return
+    match imghdr.what(None, h=data):
+        case "jpeg": return
+        case "png": return
     raise Exception("Not a jpeg nor png")
 
 def fetch_image(id):
