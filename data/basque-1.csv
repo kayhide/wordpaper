@@ -1,3 +1,4 @@
+# adjectives
 good, ona
 bad, txarra
 big, handia
@@ -18,6 +19,7 @@ narrow, estua
 wide, zabala
 strong, sendoa
 weak, ahula
+urgent, larria
 honest, zintzoa
 naughty, bihurria
 tall, altua
@@ -50,17 +52,22 @@ happy, pozik
 sad, triste
 crying, negarrez
 laughing, barreka
+angry, haserre
 surprised, harrituta
 ill, gaixorik
 scared, beldurtuta
 in love, maiteminduta
+married, ezkondua
+unmarried, ezkongabea
 hungry, gose
 crazy, zoratuta
+lazy, alfer
 thinking, pentsakor
 calm, lasai
 nervous, urduri
 closed, itxita
 open, irekita
+# body parts
 head, burua
 body, gorputza
 heart, bihotza
@@ -80,12 +87,14 @@ lip, ezpaina
 cheek, masaila
 chin, kokotsa
 chest, bularra
+waist, gerria
 back, bizkarra
 belly, sabela
-shoulder, sorbalia
+shoulder, sorbalda
 arm, besoa
 elbow, ukondoa
 hand, eskua
+wrist, eskumuturra
 finger, atzamar
 hip, ipurdia
 leg, hanka
@@ -96,9 +105,10 @@ foot, oina
 toe, behatza
 nipple, titia
 nipple, titiburua
+# date and time
 spring, udaberria
 summer, udara
-winter, udazkena
+autum, udazkena
 winter, negua
 january, urtarrila
 februrary, otsaila
@@ -106,8 +116,8 @@ march, martxoa
 april, apirila
 may, maiatza
 june, ekaina
-july, augusta
-augusta, uztaila
+july, uztaila
+august, abustu
 september, iraila
 october,  urria
 november, azaroa
@@ -131,10 +141,17 @@ day, eguna
 week, astea
 month, hilabetea
 year, urtea
+season, urtaroa
+this year, aurten
+now, orain
+earlier, lehenago
+later, geroago
+# order
 the first, lehenengoa
 the next, hurrengoa
 the previous, aurrekoa
 the last, azkena
+# clothes
 underpants, galtzontziloak
 panties, kuleroak
 socks, galtzerdiak
@@ -150,6 +167,7 @@ pants, prakak
 shirt, kamiseta
 dress, soinekoa
 shoes, zapatak
+# colors
 color, kolorea
 green, berdea
 blue, urdina
@@ -159,11 +177,17 @@ red, gorria
 brown, marroia
 purple, morea
 pink, arrosa
+fuchsia, fuksia
+turquoise, turkesa
+gold, urrea
+silver, zilarra
 gray, grisa
 white, zuria
 black, beltza
 light, argia
 dark, iluna
+# family
+parent, gurasoa
 father, aita
 mother, ama
 son, semea
@@ -187,6 +211,13 @@ father-in-law, aitaginarreba
 mother-in-law, amaginarreba
 brother-in-law, koinatua
 sister-in-law, koinata
+son-in-law, suhia
+daughter-in-law, erraina
+# relationships
+people, jendea
+friend, laguna
+name, izena
+# professions
 actor, aktorea
 singer, abeslaria
 writer, idazlea
@@ -205,33 +236,99 @@ teacher, irakaslea
 firefighter, suhiltzailea
 gardenner, lorezaina
 doctor, medikua
-broom, erratza
-scisors, guraizeak
+office worker, bulegaria
+# goods
 microphone, mikrofonoa
 hose, mangera
 camera, argazki makina
 stethoscope, fonendoskopioa
 computer, ordenagailua
-frying pan, zartagina
-stove, stegia
-oven, labea
-microwave oven, mikrouhin labea
-hozkailua, refrigerator
+# stationary
+scisors, guraizeak
+# home
+chair, aulkia
+armchair, besaulkia
+table, mahaia
+shelf board, apala
+shelf, apalategia
+window, leihoa
+broom, erratza
+mop, lanbasa
 garbigailua, washing machine
 vacuum cleaner, aspiragailua
 faucet, txorrota
 stone, harria
 iron, plantxa
-trash, zakarrontxia
-glass, edalontzia
-dish,platera
+trash bin, zakarrontxia
 bucket, baldea
+plant, landarea
+vase, loreontzia
+mirror, ispilua
+carpet, alfonbra
+curtain, gortina
+roof, telatua
+living room, egongela
+kitchen, sukaldea
+bed, ohea
+phone, telefonoa
+tap, iturria
+# bathroom
+towel, eskuoihala
+shower, dutxa
+sink, konketa
+bathrobe, bainu-bata
+bathtub, bainuontzia
+toilet, komuna
+toilet paper, komuneko papera
+sponge, xaboia
+toothbrush, hortzeskubila
+toothpaste, hortzorea
+# kitchen
+frying pan, zartagina
+stove, stegia
+oven, labea
+microwave oven, mikrouhin labea
+hozkailua, refrigerator
+glass, edalontzia
+cup, katilua
+bottle, botila
+dish,platera
 knife, aiztoa
 fork, sardexka
 spoon, koilara
 ladle, bitsadera
-bowl, katilua
-bottle, botila
-plant, landarea
-vase, loreontzia
+spatula, bitsadera
+napkin, ahozapia
+# food
 bread, ogia
+# nature
+mountain, mendia
+river, ibaia
+beach, hondaritza
+island, irla
+jungle, oihana
+tree, zuhaitza
+flower, lorea
+sun, eguzkia
+moon, ilargia
+star, izarra
+# city
+city, hiria
+town, herria
+street, kalea
+theater, antzokia
+school, ikastola
+park, parkea
+bench, bankua
+store, denda 
+farm, baserria
+church, eliza
+well, putzua
+city hall, udaletxea
+train station, tren geltokian
+castle, gaztelua
+tower, dorrea
+factory, fabrika
+bridge, zubia
+sports center, kiroldegia
+bar, taberna
