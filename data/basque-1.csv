@@ -152,6 +152,7 @@ the next, hurrengoa
 the previous, aurrekoa
 the last, azkena
 # clothes
+clothes, arropa
 underpants, galtzontziloak
 panties, kuleroak
 socks, galtzerdiak
@@ -213,7 +214,12 @@ brother-in-law, koinatua
 sister-in-law, koinata
 son-in-law, suhia
 daughter-in-law, erraina
-# relationships
+# people
+man, gizona
+woman, emakumea
+boy, mutila
+girl, neska
+kid, umea
 people, jendea
 friend, laguna
 name, izena
@@ -251,6 +257,7 @@ armchair, besaulkia
 table, mahaia
 shelf board, apala
 shelf, apalategia
+wardrobe, armairua
 window, leihoa
 broom, erratza
 mop, lanbasa
@@ -267,6 +274,10 @@ mirror, ispilua
 carpet, alfonbra
 curtain, gortina
 roof, telatua
+floor, solairua
+floor, sorua
+ceiling, sabaia
+wall, horma
 living room, egongela
 kitchen, sukaldea
 bed, ohea
